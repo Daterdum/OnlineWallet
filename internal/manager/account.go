@@ -10,11 +10,13 @@ type AccountManager struct {
 }
 
 func (manager *AccountManager) Create(dto dto.AccountDTO) dto.AccountDTO {
-
+	resp := manager.accountDao.Create(dto)
+	return resp
 }
 
 func (manager *AccountManager) Get(userId int) []dto.AccountDTO {
-
+	resp := manager.accountDao.Get(userId)
+	return resp
 }
 
 func (manager *AccountManager) Delete(dto dto.AccountDTO) {
