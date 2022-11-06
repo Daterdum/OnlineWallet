@@ -26,7 +26,7 @@ func LoadConfig() {
 	// Db
 	CONFIG.DatabaseHost = "localhost"
 	CONFIG.DatabasePort = 6432
-	CONFIG.DatabasePassword = "f49ac135aef919ca108a3e907d477493"
+	CONFIG.DatabasePassword = ""
 	CONFIG.DatabaseName = "dev"
 	CONFIG.DatabaseUser = "dev"
 	CONFIG.DatabaseUrl = fmt.Sprintf(

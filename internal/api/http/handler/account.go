@@ -9,7 +9,7 @@ import (
 )
 
 type AccountHandler struct {
-	accountManager manager.AccountManager
+	AccountManager manager.AccountManager
 }
 
 type AccountRequest struct {
@@ -37,11 +37,33 @@ func (handler *AccountHandler) Router(w http.ResponseWriter, r *http.Request) {
 }
 
 func (handler *AccountHandler) get(w http.ResponseWriter, dto dto.AccountDTO) {
-	resp := handler.accountManager.Get(dto.UserId)
-	log.Debug(resp)
+	accounts, err := handler.AccountManager.Get(dto.UserId)
+	if err != nil {
+		log.Warningf("Failed to get accounts %v", err)
+	}
+	log.Debug(accounts)
 }
 
 func (handler *AccountHandler) create(w http.ResponseWriter, dto dto.AccountDTO) {
-	resp := handler.accountManager.Create(dto)
+	resp, err := handler.AccountManager.Create(dto)
+	if err != nil {
+		log.Warningf("Failed to create dto %v", err)
+	}
+	w.Write([]byte(resp.Currency))
+	log.Debug(resp)
+}
+
+func (handler *AccountHandler) update(w http.ResponseWriter, dto dto.AccountDTO) {
+	resp, err := handler.AccountManager.Update(dto)
+	if err != nil {
+		log.Warningf("Failed to update dto %v", err)
+	}
+	w.Write([]byte(resp.Currency))
+
+	log.Debug(resp)
+}
+
+func (handler *AccountHandler) delete(w http.ResponseWriter, dto dto.AccountDTO) {
+	resp := handler.AccountManager.Delete(dto)
 	log.Debug(resp)
 }

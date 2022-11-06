@@ -5,17 +5,28 @@ import (
 	"github.com/Daterdum/OnlineWallet/internal/api/http/handler"
 	"github.com/Daterdum/OnlineWallet/internal/config"
 	"github.com/Daterdum/OnlineWallet/internal/dao/pg"
+	"github.com/Daterdum/OnlineWallet/internal/manager"
 	"github.com/jackc/pgx/v5/pgxpool"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
 )
 
-func startServer(addr int) {
+func registerManagers(DbPool *pgxpool.Pool) manager.AccountManager {
+	return manager.AccountManager{AccountDao: pg.AccountDAO{DbPool: DbPool}}
+}
+
+func registerHandlers(dbPool *pgxpool.Pool) {
+	accountManager := registerManagers(dbPool)
+	accountHandler := handler.AccountHandler{accountManager}
+	http.HandleFunc("/account", accountHandler.Router)
+}
+
+func startServer(addr int, dbPool *pgxpool.Pool) {
 	str_addr := strconv.Itoa(addr)
 	str_addr = fmt.Sprintf(":%s", str_addr)
 
-	http.HandleFunc("/get", handler.HandleGet)
+	registerHandlers(dbPool)
 
 	err := http.ListenAndServe(str_addr, nil)
 	if err != nil {
@@ -32,8 +43,10 @@ func main() {
 	config.LoadConfig()
 	log.Infof("Starting service on %s:%v", config.CONFIG.ServiceHost, config.CONFIG.ServicePort)
 	defer log.Info("Stopping service")
-
-	startServer(config.CONFIG.ServicePort)
 	dbPool := startDb()
+	startServer(
+		config.CONFIG.ServicePort,
+		dbPool,
+	)
 	defer dbPool.Close()
 }
